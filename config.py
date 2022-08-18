@@ -11,3 +11,10 @@ DEBUG = True
 
 # TODO IMPLEMENT DATABASE URL
 SQLALCHEMY_DATABASE_URI = 'postgresql://uchechisamuel@localhost:5432/fyyurapp'
+
+# class DatabaseURI:
+#     DATABASE_NAME = "fyyurapp"
+#     username = 'uchechisamuel'
+#     url = 'localhost:5432'
+#     SQLALCHEMY_DATABASE_URI = "postgres://{}@{}/{}".format(
+#         username, url, DATABASE_NAME)

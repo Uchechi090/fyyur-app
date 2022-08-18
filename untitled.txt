@@ -1,0 +1,39 @@
+Would not it be great if we can list out the recently created venues as well as artist on the home page.
+
+OR
+
+Maybe you can list those venues which are used a lot or those artists who have given a lot of live performances on the home page under Trending Artists or Trending Venues.
+
+But since for our use case it would be more relevant to list out the recently created venues or artists!
+
+Following code does the same!
+
+@app.route('/')
+def index():
+  venues = Venue.query.order_by(desc(Venue.created_date)).limit(10).all()
+  artists = Artist.query.order_by(desc(Artist.created_date)).limit(10).all()
+  return render_template('pages/home.html', venues=venues, artists=artists)
+Also, do not forget to add the front end code in the file templates/pages/home.html
+
+<div class="row">
+  <div class="col-sm-6">
+    <h3>Recent Venues</h3>
+    {% for venue in venues %}
+      <a href="/venues/">
+        <div>
+          <h5></h5>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+  <div class="col-sm-6">
+    <h3>Recent Artists</h3>
+    {% for artist in artists %}
+      <a href="/artists/">
+        <div>
+          <h5></h5>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</div>
