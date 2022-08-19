@@ -28,6 +28,7 @@ import sys
 # from config import DatabaseURI
 
 from models import (
+    db,
     Genre,
     venue_genres,
     artist_genres,
@@ -43,7 +44,8 @@ app = Flask(__name__)
 moment = Moment(app)
 app.config.from_object('config')
 # app.config.from_object(DatabaseURI)
-db = SQLAlchemy(app)
+# db = SQLAlchemy(app)
+db.init_app(app)
 
 # TODO: connect to a local postgresql database
 migrate = Migrate(app, db)
@@ -179,21 +181,29 @@ def show_venue(venue_id):
         upcoming_shows = []
         genres = [genre.name for genre in venue.genres]
 
-        for show in venue.shows:
-            if show.time_of_show > datetime.now():
-                upcoming_shows.append({
-                    "artist_id": show.artist_id,
-                    "artist_name": show.artist.name,
-                    "artist_image_link": show.artist.image_link,
-                    "start_time": format_datetime(str(show.time_of_show))
-                })
-            if show.time_of_show < datetime.now():
-                past_shows.append({
-                    "artist_id": show.artist_id,
-                    "artist_name": show.artist.name,
-                    "artist_image_link": show.artist.image_link,
-                    "start_time": format_datetime(str(show.time_of_show))
-                })
+        get_past_shows = db.session.query(Show).join(Venue).filter(
+            Show.venue_id == venue_id).filter(
+            Show.time_of_show < datetime.now()).all()
+
+        get_upcoming_shows = db.session.query(Show).join(Venue).filter(
+            Show.venue_id == venue_id).filter(
+            Show.time_of_show > datetime.now()).all()
+
+        for show in get_past_shows:
+            past_shows.append({
+                "artist_id": show.artist_id,
+                "artist_name": show.artist.name,
+                "artist_image_link": show.artist.image_link,
+                "start_time": format_datetime(str(show.time_of_show))
+            })
+
+        for show in get_upcoming_shows:
+            upcoming_shows.append({
+                "artist_id": show.artist_id,
+                "artist_name": show.artist.name,
+                "artist_image_link": show.artist.image_link,
+                "start_time": format_datetime(str(show.time_of_show))
+            })
 
         data = {
             "id": venue_id,
@@ -388,21 +398,29 @@ def show_artist(artist_id):
         upcoming_shows = []
         genres = [genre.name for genre in artist.genres]
 
-        for show in artist.shows:
-            if show.time_of_show > datetime.now():
-                upcoming_shows.append({
-                    "venue_id": show.venue_id,
-                    "venue_name": show.venue.name,
-                    "venue_image_link": show.venue.image_link,
-                    "start_time": format_datetime(str(show.time_of_show))
-                })
-            if show.time_of_show < datetime.now():
-                past_shows.append({
-                    "venue_id": show.venue_id,
-                    "venue_name": show.venue.name,
-                    "venue_image_link": show.venue.image_link,
-                    "start_time": format_datetime(str(show.time_of_show))
-                })
+        get_past_shows = db.session.query(Show).join(Artist).filter(
+            Show.artist_id == artist_id).filter(
+            Show.time_of_show < datetime.now()).all()
+
+        get_upcoming_shows = db.session.query(Show).join(Artist).filter(
+            Show.artist_id == artist_id).filter(
+            Show.time_of_show > datetime.now()).all()
+
+        for show in get_past_shows:
+            past_shows.append({
+                "venue_id": show.venue_id,
+                "venue_name": show.venue.name,
+                "venue_image_link": show.venue.image_link,
+                "start_time": format_datetime(str(show.time_of_show))
+            })
+
+        for show in get_upcoming_shows:
+            upcoming_shows.append({
+                "venue_id": show.venue_id,
+                "venue_name": show.venue.name,
+                "venue_image_link": show.venue.image_link,
+                "start_time": format_datetime(str(show.time_of_show))
+            })
 
         data = {
             "id": artist_id,
